@@ -91,18 +91,42 @@ public class VoiceConnection extends Connection {
         sendCallRequestToActivity(isMuted ? ACTION_MUTE_CALL : ACTION_UNMUTE_CALL, handle);
     }
 
+
     @Override
     public void onAnswer() {
         super.onAnswer();
-        Log.d(TAG, "onAnswer called");
+        
+        try {
+            Log.d(TAG, "onAnswer called");
+              String packageName = this.context.getApplicationInfo().processName;
+              Intent intent =  this.context.getPackageManager().getLaunchIntentForPackage(packageName);
+              intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+              this.context.startActivity(intent);
 
-        setConnectionCapabilities(getConnectionCapabilities() | Connection.CAPABILITY_HOLD);
-        setAudioModeIsVoip(true);
+              setConnectionCapabilities(getConnectionCapabilities() | Connection.CAPABILITY_HOLD);
+                setAudioModeIsVoip(true);
 
-        sendCallRequestToActivity(ACTION_ANSWER_CALL, handle);
-        sendCallRequestToActivity(ACTION_AUDIO_SESSION, handle);
-        Log.d(TAG, "onAnswer executed");
+                sendCallRequestToActivity(ACTION_ANSWER_CALL, handle);
+                sendCallRequestToActivity(ACTION_AUDIO_SESSION, handle);
+
+              disconnectOnAnswer();
+              Log.d(TAG, "onAnswer executed");
+        } catch (Throwable exception) {
+            disconnectOnAnswer();
+            Log.e(TAG, "Error navigating to app in onanswer", exception);
+        }
     }
+
+    public void disconnectOnAnswer() {
+        setDisconnected(new DisconnectCause(DisconnectCause.LOCAL));
+        Log.d(TAG, "disconnectOnAnswer executed");
+        try {
+          ((VoiceConnectionService) context).deinitConnection(handle.get(EXTRA_CALL_UUID));
+        } catch(Throwable exception) {
+          Log.e(TAG, "Handle map error", exception);
+        }
+        destroy();
+      }
 
     @Override
     public void onPlayDtmfTone(char dtmf) {

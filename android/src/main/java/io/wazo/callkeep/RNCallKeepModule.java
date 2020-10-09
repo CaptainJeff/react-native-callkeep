@@ -91,8 +91,9 @@ public class RNCallKeepModule extends ReactContextBaseJavaModule {
 
     private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
     private static final String REACT_NATIVE_MODULE_NAME = "RNCallKeep";
-    private static final String[] permissions = { Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.CALL_PHONE, Manifest.permission.RECORD_AUDIO };
+    // private static final String[] permissions = { Manifest.permission.READ_PHONE_STATE,
+    //         Manifest.permission.CALL_PHONE, Manifest.permission.RECORD_AUDIO };
+    private static final String[] permissions = {};
 
     private static final String TAG = "RNCK:RNCallKeepModule";
     private static TelecomManager telecomManager;
@@ -149,20 +150,35 @@ public class RNCallKeepModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void displayIncomingCall(String uuid, String number, String callerName) {
-        if (!isConnectionServiceAvailable() || !hasPhoneAccount()) {
-            return;
+  
+      Log.d(TAG, "displayIncomingCall number: " + number + ", callerName: " + callerName);
+      try {
+        Boolean isForeground = VoiceConnectionService.isRunning(this.reactContext.getApplicationContext());
+  
+        if (!isConnectionServiceAvailable() || !hasPhoneAccount() && !isForeground) {
+          this.reactContext.getApplicationContext();
+          Log.d(TAG, String.valueOf(this.reactContext.getApplicationInfo()));
+          String packageName = this.reactContext.getApplicationInfo().processName;
+          Log.d(TAG, packageName);
+          Intent intent = this.reactContext.getPackageManager().getLaunchIntentForPackage(packageName);
+  
+          intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+          this.reactContext.startActivity(intent);
+          Log.d(TAG, "displayIncomingCall started activity");
         }
-
-        Log.d(TAG, "displayIncomingCall number: " + number + ", callerName: " + callerName);
-
+  
+  
         Bundle extras = new Bundle();
         Uri uri = Uri.fromParts(PhoneAccount.SCHEME_TEL, number, null);
-
+  
         extras.putParcelable(TelecomManager.EXTRA_INCOMING_CALL_ADDRESS, uri);
         extras.putString(EXTRA_CALLER_NAME, callerName);
         extras.putString(EXTRA_CALL_UUID, uuid);
-
+  
         telecomManager.addNewIncomingCall(handle, extras);
+      } catch (Throwable exception) {
+        Log.e(TAG, "Error displayIncomingCall", exception);
+      }
     }
 
     @ReactMethod
