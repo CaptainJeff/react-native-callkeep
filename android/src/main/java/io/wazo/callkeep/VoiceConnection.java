@@ -95,13 +95,19 @@ public class VoiceConnection extends Connection {
     @Override
     public void onAnswer() {
         super.onAnswer();
+<<<<<<< HEAD
         
         try {
             Log.d(TAG, "onAnswer called");
+=======
+        Log.d(TAG, "onAnswer called");
+        try {
+>>>>>>> modifying onAnswer and displayIncomingCall
               String packageName = this.context.getApplicationInfo().processName;
               Intent intent =  this.context.getPackageManager().getLaunchIntentForPackage(packageName);
               intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
               this.context.startActivity(intent);
+<<<<<<< HEAD
 
               setConnectionCapabilities(getConnectionCapabilities() | Connection.CAPABILITY_HOLD);
                 setAudioModeIsVoip(true);
@@ -113,6 +119,10 @@ public class VoiceConnection extends Connection {
               Log.d(TAG, "onAnswer executed");
         } catch (Throwable exception) {
             disconnectOnAnswer();
+=======
+              Log.d(TAG, "onAnswer executed");
+        } catch (Throwable exception) {
+>>>>>>> modifying onAnswer and displayIncomingCall
             Log.e(TAG, "Error navigating to app in onanswer", exception);
         }
     }

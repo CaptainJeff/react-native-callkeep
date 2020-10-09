@@ -129,6 +129,7 @@ public class RNCallKeepModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+<<<<<<< HEAD
     public void registerPhoneAccount() {
         if (!isConnectionServiceAvailable()) {
             return;
@@ -149,6 +150,8 @@ public class RNCallKeepModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+=======
+>>>>>>> modifying onAnswer and displayIncomingCall
     public void displayIncomingCall(String uuid, String number, String callerName) {
   
       Log.d(TAG, "displayIncomingCall number: " + number + ", callerName: " + callerName);
